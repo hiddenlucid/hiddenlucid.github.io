@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Like a Pro | The Ultimate Lucid Guide</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cormorant Garamond', 'serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#020617',
+                            surface: '#0f172a',
+                            teal: '#0d9488',
+                            gold: '#d97706',
+                            light: '#f8fafc',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-delayed': 'float 6s ease-in-out 3s infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+            cursor: default;
+        }
+
+        #dream-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.8;
+            transition: opacity 1s ease;
+        }
+
+        .word-reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        
+        .word-reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #progress-bar {
+            transform-origin: left center;
+            transition: transform 0.1s linear;
+        }
+
+        .section-content {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .section-content.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(13, 148, 136, 0.3);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #0d9488; 
+        }
+    </style>
+</head>
+<body class="antialiased bg-[#020617] selection:bg-brand-teal selection:text-white relative">
+
+    <div id="dream-canvas"></div>
+
+    <div class="fixed top-0 left-0 w-full h-1 bg-brand-surface z-50">
+        <div id="progress-bar" class="h-full bg-brand-teal w-full scale-x-0 shadow-[0_0_10px_rgba(13,148,136,0.5)]"></div>
+    </div>
+
+    <div class="hidden lg:flex fixed right-8 top-1/2 -translate-y-1/2 z-40 flex-col gap-6">
+        <div class="absolute left-1/2 top-0 bottom-0 w-[1px] bg-brand-teal/20 -translate-x-1/2 -z-10"></div>
+        
+        <button data-target="hero" class="nav-dot group relative flex items-center justify-end">
+            <span class="absolute right-8 px-3 py-1 rounded-md bg-brand-surface/90 backdrop-blur-sm border border-white/10 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Awaken</span>
+            <div class="w-3 h-3 rounded-full border-2 border-white/20 transition-all duration-300 group-hover:border-brand-teal group-hover:bg-brand-teal/20 dot-indicator"></div>
+        </button>
+        <button data-target="problem" class="nav-dot group relative flex items-center justify-end">
+            <span class="absolute right-8 px-3 py-1 rounded-md bg-brand-surface/90 backdrop-blur-sm border border-white/10 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">The Gate</span>
+            <div class="w-3 h-3 rounded-full border-2 border-white/20 transition-all duration-300 group-hover:border-brand-teal group-hover:bg-brand-teal/20 dot-indicator"></div>
+        </button>
+        <button data-target="features" class="nav-dot group relative flex items-center justify-end">
+            <span class="absolute right-8 px-3 py-1 rounded-md bg-brand-surface/90 backdrop-blur-sm border border-white/10 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">The Methods</span>
+            <div class="w-3 h-3 rounded-full border-2 border-white/20 transition-all duration-300 group-hover:border-brand-teal group-hover:bg-brand-teal/20 dot-indicator"></div>
+        </button>
+        <button data-target="cta" class="nav-dot group relative flex items-center justify-end">
+            <span class="absolute right-8 px-3 py-1 rounded-md bg-brand-surface/90 backdrop-blur-sm border border-white/10 text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Creator</span>
+            <div class="w-3 h-3 rounded-full border-2 border-white/20 transition-all duration-300 group-hover:border-brand-teal group-hover:bg-brand-teal/20 dot-indicator"></div>
+        </button>
+    </div>
+
+    <main class="relative z-10">
+        
+        <section id="hero" class="min-h-screen flex items-center justify-center px-6 lg:px-24 pt-20 pb-12 relative">
+            <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center section-content">
+                <div class="order-2 lg:order-1 flex flex-col items-start text-left space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-teal/10 border border-brand-teal/30 text-brand-teal text-sm font-medium tracking-wide">
+                        <i class="ph-fill ph-sparkle animate-pulse"></i> Unlock the Secret World
+                    </div>
+                    <h1 class="text-5xl md:text-7xl font-serif font-bold leading-tight tracking-tight text-white">
+                        Dream Like a <span class="text-brand-gold">Pro</span>
+                    </h1>
+                    <p class="text-xl md:text-2xl text-slate-300 font-light max-w-lg leading-relaxed">
+                        The ultimate guide to unlocking the hidden gate between reality and illusion.
+                    </p>
+                    <div class="pt-4 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        <a href="https://payhip.com/b/LoCs3" target="_blank" class="group relative px-8 py-4 rounded-xl bg-brand-light text-brand-dark font-semibold text-lg transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(255,255,255,0.1)] text-center overflow-hidden">
+                            <span class="relative z-10 flex items-center justify-center gap-2">
+                                Start Your Journey <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                            </span>
+                        </a>
+                    </div>
+                    
+                    <div class="flex items-center gap-4 mt-8 text-sm text-slate-400">
+                        <div class="flex -space-x-2">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-brand-dark flex items-center justify-center"><i class="ph-fill ph-star text-brand-gold"></i></div>
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-brand-dark flex items-center justify-center"><i class="ph-fill ph-moon text-brand-teal"></i></div>
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border-2 border-brand-dark flex items-center justify-center"><i class="ph-fill ph-eye text-slate-300"></i></div>
+                        </div>
+                        <p>Based on direct practice & real experience</p>
+                    </div>
+                </div>
+                
+                <div class="order-1 lg:order-2 flex justify-center lg:justify-end relative">
+                    <img src="https://payhip.com/cdn-cgi/image/format=auto/https://pe56d.s3.amazonaws.com/o_1j6ajd6n4v5r18j7kgj1vui1tk11a.png" 
+                         alt="Dream Like a Pro Book Cover" 
+                         class="relative z-10 w-full max-w-md rounded-lg shadow-2xl shadow-black/50 animate-float border border-white/5" />
+                </div>
+            </div>
+            
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-500 animate-bounce cursor-pointer" onclick="document.getElementById('problem').scrollIntoView({behavior: 'smooth'})">
+                <span class="text-xs tracking-widest uppercase">Scroll</span>
+                <i class="ph ph-caret-down"></i>
+            </div>
+        </section>
+
+        <section id="problem" class="min-h-screen flex items-center justify-center px-6 lg:px-24 py-24 relative">
+            <div class="max-w-4xl mx-auto text-center section-content">
+                <i class="ph-fill ph-quotes text-4xl text-brand-teal/40 mb-6 mx-auto"></i>
+                <h2 class="text-3xl md:text-5xl font-serif font-bold mb-8 leading-snug">
+                    What if you could <span class="text-brand-gold">wake up</span> inside your dreams?
+                </h2>
+                <div class="text-lg md:text-xl text-slate-300 font-light space-y-6 leading-relaxed reveal-container">
+                    <p class="word-reveal">Fly across limitless worlds, conquer your deepest fears, and unlock creativity beyond imagination.</p>
+                    <p class="word-reveal">For centuries, mystics, shamans, and philosophers called lucid dreaming the <span class="italic text-brand-light">“hidden gate”</span> between reality and illusion.</p>
+                    <p class="word-reveal">Today, modern science confirms what the ancients always suspected: lucid dreams are real — and with the right tools, <strong class="text-brand-teal font-medium">anyone can learn to master them.</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="min-h-screen flex items-center justify-center px-6 lg:px-24 py-24 relative">
+            <div class="max-w-7xl mx-auto w-full section-content">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-serif font-bold mb-4">Inside the Guide</h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto">Bringing together timeless wisdom and discoveries from pioneers like Stephen LaBerge, Matthew Walker, and the legendary insights of Freud and Jung.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="glass-card p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-brand-teal/10 flex items-center justify-center mb-6 border border-brand-teal/20 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-brain text-2xl text-brand-teal"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-white">Recognize the Dream</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Train your mind to pinpoint the exact moment you transition into the dream state, achieving instant lucidity.</p>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-brand-gold/10 flex items-center justify-center mb-6 border border-brand-gold/20 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-magic-wand text-2xl text-brand-gold"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-white">Shape Reality</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Stay in complete control. Learn the techniques to bend, shape, and command your dream world with effortless ease.</p>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center mb-6 border border-rose-500/20 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-shield-check text-2xl text-rose-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-white">Avoid Pitfalls</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Navigate the subconscious safely. Master methods to prevent the pitfalls that turn lucidity into sleep paralysis or nightmares.</p>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center mb-6 border border-blue-500/20 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-lightbulb-filament text-2xl text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-white">Unlock Genius</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Tap into the boundless creative genius of your subconscious mind to solve problems and spark real-world innovation.</p>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2">
+                        <div class="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6 border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-plant text-2xl text-emerald-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-white">Personal Growth</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Utilize the lucid state as a therapeutic tool for profound healing, emotional resolution, and personal transformation.</p>
+                    </div>
+
+                    <div class="glass-card p-8 rounded-2xl transition-all duration-300 group hover:-translate-y-2 relative overflow-hidden">
+                        <div class="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20 group-hover:scale-110 transition-transform">
+                            <i class="ph ph-users-three text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-white">Shared Dreams</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">Explore the ultimate frontier: the documented possibilities and techniques behind sharing dreams with others.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="cta" class="min-h-screen flex items-center justify-center px-6 lg:px-24 py-24 relative overflow-hidden">
+            <div class="max-w-4xl mx-auto text-center section-content">
+                <img src="https://payhip.com/cdn-cgi/image/format=auto/https://pe56d.s3.amazonaws.com/o_1j6ajd6n4v5r18j7kgj1vui1tk11a.png" 
+                     alt="Dream Like a Pro Book Cover" 
+                     class="w-48 mx-auto mb-8 rounded shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500 border border-white/10" />
+                     
+                <h2 class="text-4xl md:text-6xl font-serif font-bold mb-6">Stop being a passenger.</h2>
+                <p class="text-2xl text-brand-teal font-serif italic mb-10">Become the creator.</p>
+                
+                <p class="text-slate-400 max-w-2xl mx-auto mb-12">
+                    If you’ve ever felt the whisper of another world while sleeping — a hidden reality just beyond your reach — this book is your key.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                    <a href="https://payhip.com/b/LoCs3" target="_blank" class="w-full sm:w-auto px-10 py-5 rounded-xl bg-brand-teal text-white font-bold text-lg transition-all hover:scale-[1.05] shadow-[0_0_30px_rgba(13,148,136,0.3)] flex items-center justify-center gap-3">
+                        <i class="ph-fill ph-book-open text-2xl"></i> Get The Guide Now
+                    </a>
+                    <a href="https://www.instagram.com/hiddenlnklucid?igsh=MTcwNTJjeTlqaGh4aQ==" target="_blank" class="w-full sm:w-auto px-8 py-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur hover:bg-white/10 text-white font-medium text-lg transition-all flex items-center justify-center gap-3 group">
+                        <i class="ph ph-instagram-logo text-2xl group-hover:text-pink-500 transition-colors"></i> @hiddenlnklucid
+                    </a>
+                </div>
+                
+                <footer class="mt-24 pt-8 border-t border-white/10 text-slate-500 text-sm flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <p>&copy; 2026 Dream Like a Pro. All rights reserved.</p>
+                    <p>Unlock the secret world.</p>
+                </footer>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const initThreeJS = () => {
+            const container = document.getElementById('dream-canvas');
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020617, 0.0015);
+
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 2500;
+            const posArray = new Float32Array(particleCount * 3);
+            const colorsArray = new Float32Array(particleCount * 3);
+
+            const color1 = new THREE.Color(0x0d9488);
+            const color2 = new THREE.Color(0xd97706);
+            const color3 = new THREE.Color(0xf8fafc);
+
+            for(let i = 0; i < particleCount * 3; i+=3) {
+                const radius = 15 + Math.random() * 5;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.acos((Math.random() * 2) - 1);
+                
+                posArray[i] = radius * Math.sin(phi) * Math.cos(theta);
+                posArray[i+1] = radius * Math.sin(phi) * Math.sin(theta);
+                posArray[i+2] = radius * Math.cos(phi);
+
+                const mixedColor = color1.clone().lerp(color2, Math.random());
+                if(Math.random() > 0.9) mixedColor.lerp(color3, 0.8);
+
+                colorsArray[i] = mixedColor.r;
+                colorsArray[i+1] = mixedColor.g;
+                colorsArray[i+2] = mixedColor.b;
+            }
+
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.08,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particleMesh = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particleMesh);
+
+            camera.position.z = 30;
+
+            let mouseX = 0;
+            let mouseY = 0;
+            let targetX = 0;
+            let targetY = 0;
+
+            const windowHalfX = window.innerWidth / 2;
+            const windowHalfY = window.innerHeight / 2;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX - windowHalfX);
+                mouseY = (event.clientY - windowHalfY);
+            });
+
+            let scrollY = 0;
+            window.addEventListener('scroll', () => {
+                scrollY = window.scrollY;
+            });
+
+            const clock = new THREE.Clock();
+            const animate = () => {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+
+                targetX = mouseX * 0.001;
+                targetY = mouseY * 0.001;
+                
+                particleMesh.rotation.y += 0.002;
+                particleMesh.rotation.x += 0.0005;
+
+                particleMesh.position.y = -scrollY * 0.01;
+                particleMesh.rotation.y += 0.05 * (targetX - particleMesh.rotation.y);
+                particleMesh.rotation.x += 0.05 * (targetY - particleMesh.rotation.x);
+
+                const positions = particleMesh.geometry.attributes.position.array;
+                for(let i = 0; i < particleCount; i++) {
+                    const i3 = i * 3;
+                    const x = particleGeometry.attributes.position.array[i3];
+                    const y = particleGeometry.attributes.position.array[i3+1];
+                    const z = particleGeometry.attributes.position.array[i3+2];
+                    
+                    const factor = Math.sin(elapsedTime * 0.5 + x * 0.1) * 0.01;
+                    positions[i3] += x * factor * 0.1;
+                    positions[i3+1] += y * factor * 0.1;
+                    positions[i3+2] += z * factor * 0.1;
+                }
+                particleMesh.geometry.attributes.position.needsUpdate = true;
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+
+        const initScrollLogic = () => {
+            const progressBar = document.getElementById('progress-bar');
+            const sections = document.querySelectorAll('section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const wordReveals = document.querySelectorAll('.word-reveal');
+            
+            wordReveals.forEach((word, idx) => {
+                word.style.transitionDelay = `${idx * 0.2}s`;
+            });
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.5
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.getAttribute('id');
+                    
+                    if (entry.isIntersecting) {
+                        entry.target.querySelector('.section-content')?.classList.add('active');
+                        
+                        if(id === 'problem') {
+                            entry.target.querySelectorAll('.word-reveal').forEach(w => w.classList.add('visible'));
+                        }
+
+                        navDots.forEach(dot => {
+                            const indicator = dot.querySelector('.dot-indicator');
+                            if (dot.dataset.target === id) {
+                                indicator.classList.remove('bg-transparent', 'border-white/20');
+                                indicator.classList.add('bg-brand-teal', 'border-brand-teal', 'scale-125', 'shadow-[0_0_10px_rgba(13,148,136,0.5)]');
+                            } else {
+                                indicator.classList.add('bg-transparent', 'border-white/20');
+                                indicator.classList.remove('bg-brand-teal', 'border-brand-teal', 'scale-125', 'shadow-[0_0_10px_rgba(13,148,136,0.5)]');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => sectionObserver.observe(section));
+
+            navDots.forEach(dot => {
+                dot.addEventListener('click', () => {
+                    const targetId = dot.dataset.target;
+                    document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height);
+                progressBar.style.transform = `scaleX(${scrolled})`;
+                
+                const canvas = document.getElementById('dream-canvas');
+                canvas.style.opacity = Math.max(0.2, 0.8 - (scrolled * 0.5));
+            });
+        };
+
+        window.onload = () => {
+            initThreeJS();
+            initScrollLogic();
+            
+            setTimeout(() => {
+                document.querySelector('#hero .section-content').classList.add('active');
+            }, 100);
+        };
+    </script>
+</body>
+</html>
